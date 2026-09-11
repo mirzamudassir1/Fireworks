@@ -12,19 +12,22 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      const res = await api.post("/auth/login", { email, password });
-      login(res.data.access_token);
-      navigate("/products");
-    } catch (err) {
-      setError(err.response?.data?.detail || "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+  try {
+    const res = await api.post("/auth/login", { email, password });
+    login(res.data.access_token);
+
+    // Decode role right after login to decide where to send them
+    const payload = JSON.parse(atob(res.data.access_token.split(".")[1]));
+    navigate(payload.role === "admin" ? "/admin" : "/products");
+  } catch (err) {
+    setError(err.response?.data?.detail || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="auth-page">

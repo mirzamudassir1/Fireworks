@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Products from "./pages/Products";
+import Admin from "./pages/Admin";
 
 function PrivateRoute({ children }) {
   const { isLoggedIn } = useAuth();
@@ -19,6 +20,14 @@ function AppRoutes() {
         element={
           <PrivateRoute>
             <Products />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <PrivateRoute>
+            <Admin />
           </PrivateRoute>
         }
       />
