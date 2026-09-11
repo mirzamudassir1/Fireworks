@@ -3,8 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import client
 from app.routes import products
 from app.routes import auth
+from app.routes import orders
 
-app = FastAPI(title="Ecommers API")          # <-- app must be created FIRST
+app = FastAPI(title="Ecommers API")          # app created FIRST
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,8 +15,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(products.router)          # <-- THEN include routers
+app.include_router(products.router)          # THEN include all routers
 app.include_router(auth.router)
+app.include_router(orders.router)
 
 @app.on_event("startup")
 async def startup_check():
