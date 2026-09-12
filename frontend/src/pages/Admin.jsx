@@ -1,43 +1,19 @@
 import { useState, useEffect } from "react";
+import { getOrders, deleteOrder } from "../api/orders";
 import { getProducts, createProduct, updateProduct, deleteProduct } from "../api/products";
 import { useAuth } from "../context/AuthContext";
+import logo from "../assets/logo.jpeg";
+import Footer from "../components/Footer";
 
 const emptyForm = { name: "", description: "", price: "", image_url: "", stock: "", category: "" };
 
 export default function Admin() {
   const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
   const { logout } = useAuth();
-
-  const [uploading, setUploading] = useState(false);
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setUploading(true);
-    setError("");
-    try {
-      const data = new FormData();
-      data.append("file", file);
-      data.append("upload_preset", "firework");
-
-      const res = await fetch("https://api.cloudinary.com/v1_1/mzbbbxcj/image/upload", {
-        method: "POST",
-        body: data,
-      });
-      const result = await res.json();
-
-      if (!result.secure_url) throw new Error("Upload failed");
-      setForm((f) => ({ ...f, image_url: result.secure_url }));
-    } catch {
-      setError("Image upload failed — try again");
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const loadProducts = async () => {
     try {
@@ -48,8 +24,28 @@ export default function Admin() {
     }
   };
 
+  const loadOrders = async () => {
+    try {
+      const res = await getOrders();
+      setOrders(res.data);
+    } catch {
+      setError("Failed to load orders");
+    }
+  };
+
+  const handleDeleteOrder = async (id) => {
+  if (!confirm("Delete this order?")) return;
+  try {
+    await deleteOrder(id);
+    loadOrders();
+  } catch {
+    setError("Failed to delete order");
+  }
+};
+
   useEffect(() => {
     loadProducts();
+    loadOrders();
   }, []);
 
   const handleChange = (e) => {
@@ -108,9 +104,9 @@ export default function Admin() {
   return (
     <div className="admin-page">
       <header className="admin-header">
-        <h1>Admin Dashboard</h1>
-        <button onClick={logout} className="logout-btn">Log out</button>
-      </header>
+  <img src={logo} alt="The Cracker City" className="admin-logo" />
+  <button onClick={logout} className="logout-btn">Log out</button>
+</header>
 
       <section className="admin-form-section">
         <h2>{editingId ? "Edit Product" : "Add Product"}</h2>
@@ -118,32 +114,14 @@ export default function Admin() {
           <input name="name" placeholder="Name" value={form.name} onChange={handleChange} required />
           <input name="description" placeholder="Description" value={form.description} onChange={handleChange} required />
           <input name="price" type="number" step="0.01" placeholder="Price" value={form.price} onChange={handleChange} required />
-
-          <div className="image-upload-field">
-            <label className="upload-btn">
-              {uploading ? "Uploading..." : "Choose Photo"}
-              <input type="file" accept="image/*" onChange={handleImageUpload} hidden />
-            </label>
-            {form.image_url && (
-              <img src={form.image_url} alt="preview" className="image-preview" />
-            )}
-          </div>
-
+          <input name="image_url" placeholder="Image URL" value={form.image_url} onChange={handleChange} required />
           <input name="stock" type="number" placeholder="Stock" value={form.stock} onChange={handleChange} />
-          <select name="category" value={form.category} onChange={handleChange} required>
-  <option value="">Select Category</option>
-  <option value="Aerial">Aerial</option>
-  <option value="Ground">Ground</option>
-  <option value="Sound/Blast">Sound/Blast</option>
-  <option value="Sparklers & Fountains">Sparklers & Fountains</option>
-</select>
+          <input name="category" placeholder="Category (optional)" value={form.category} onChange={handleChange} />
 
           {error && <p className="admin-error">{error}</p>}
 
           <div className="form-actions">
-            <button type="submit" className="save-btn" disabled={uploading}>
-              {editingId ? "Update" : "Add"} Product
-            </button>
+            <button type="submit" className="save-btn">{editingId ? "Update" : "Add"} Product</button>
             {editingId && <button type="button" onClick={cancelEdit} className="cancel-btn">Cancel</button>}
           </div>
         </form>
@@ -167,6 +145,34 @@ export default function Admin() {
         </div>
       </section>
 
+      <section className="admin-list-section">
+        <h2>Orders ({orders.length})</h2>
+        {orders.length === 0 ? (
+          <p style={{ color: "#6b6b7b" }}>No orders yet.</p>
+        ) : (
+          <div className="orders-list">
+            {orders.map((o) => (
+              <div key={o._id} className="order-card">
+                <div className="order-top">
+                  <span className="order-email">{o.email}</span>
+                  <span className="order-phone">📞 {o.phone}</span>
+                </div>
+                <ul className="order-items">
+                  {o.items.map((item, i) => (
+                    <li key={i}>{item.name} × {item.qty} — ₹{(item.price * item.qty).toFixed(2)}</li>
+                  ))}
+                </ul>
+                <div className="order-bottom">
+  <span>Total: ₹{o.total.toFixed(2)}</span>
+  <span className="order-date">{new Date(o.created_at).toLocaleString()}</span>
+</div>
+<button className="delete-order-btn" onClick={() => handleDeleteOrder(o._id)}>Delete</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+        <Footer />
       <style>{`
         * { box-sizing: border-box; }
         .admin-page {
@@ -219,36 +225,9 @@ export default function Admin() {
           color: #16161f;
           background: #ffffff;
         }
-          .product-form select {
-  padding: 10px 12px;
-  font-size: 14px;
-  border: 1.5px solid #e2e2e8;
-  border-radius: 8px;
-  color: #16161f;
-  background: #ffffff;
-}
         .product-form input:focus {
           outline: none;
           border-color: #E8794E;
-        }
-        .image-upload-field {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        .upload-btn {
-          padding: 8px 16px;
-          background: #f1f1f4;
-          color: #16161f;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 14px;
-        }
-        .image-preview {
-          width: 48px;
-          height: 48px;
-          object-fit: cover;
-          border-radius: 6px;
         }
         .admin-error {
           color: #c23a3a;
@@ -269,7 +248,6 @@ export default function Admin() {
           font-weight: 600;
         }
         .save-btn:hover { background: #D9663B; }
-        .save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .cancel-btn {
           padding: 10px 16px;
           background: #f1f1f4;
@@ -326,6 +304,54 @@ export default function Admin() {
         }
         .edit-btn { background: #f1f1f4; color: #16161f; }
         .delete-btn { background: #fbe6e6; color: #c23a3a; }
+        .orders-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .order-card {
+          border: 1.5px solid #e2e2e8;
+          border-radius: 10px;
+          padding: 12px 14px;
+        }
+        .order-top {
+          display: flex;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-bottom: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #16161f;
+        }
+        .order-phone { color: #E8794E; }
+        .order-items {
+          margin: 0 0 8px;
+          padding-left: 18px;
+          font-size: 13px;
+          color: #333;
+        }
+        .order-bottom {
+          display: flex;
+          justify-content: space-between;
+          font-size: 13px;
+          color: #6b6b7b;
+        }
+          .delete-order-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 6px;
+  background: #fbe6e6;
+  color: #c23a3a;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+  .admin-logo {
+  height: 40px;
+  width: auto;
+}
       `}</style>
     </div>
   );

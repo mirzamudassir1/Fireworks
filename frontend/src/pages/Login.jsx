@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
+import logo from "../assets/logo.jpeg";
+import Footer from "../components/Footer";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -77,9 +79,9 @@ export default function Login() {
         </svg>
 
         <div className="auth-visual-text">
-          <span className="brand-mark">Fireworks</span>
-          <p className="brand-tagline">Light up every celebration.</p>
-        </div>
+  <img src={logo} alt="The Cracker City" className="brand-logo" />
+  <p className="brand-tagline">Light up every celebration.</p>
+</div>
       </div>
 
       <div className="auth-form-panel">
@@ -124,7 +126,7 @@ export default function Login() {
           </p>
         </div>
       </div>
-
+         <Footer />
       <style>{`
         * { box-sizing: border-box; }
 
@@ -275,6 +277,11 @@ export default function Login() {
           .auth-visual { min-height: 260px; padding: 24px; }
           .burst { width: 45%; }
         }
+        .brand-logo {
+  max-width: 220px;
+  width: 80%;
+  height: auto;
+}
       `}</style>
     </div>
   );
