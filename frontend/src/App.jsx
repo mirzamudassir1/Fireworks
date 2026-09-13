@@ -6,6 +6,7 @@ import Signup from "./pages/Signup";
 import Products from "./pages/Products";
 import Admin from "./pages/Admin";
 import Cart from "./pages/Cart";
+import ProductDetail from "./pages/ProductDetail";
 
 function PrivateRoute({ children }) {
   const { isLoggedIn } = useAuth();
@@ -25,6 +26,14 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
+      <Route
+  path="/products/:id"
+  element={
+    <PrivateRoute>
+      <ProductDetail />
+    </PrivateRoute>
+  }
+/>
       <Route
         path="/cart"
         element={

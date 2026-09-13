@@ -34,16 +34,18 @@ export default function Products() {
       {error && <p className="shop-error">{error}</p>}
 
       <div className="product-grid">
-        {products.map((p) => (
-          <div key={p._id} className="product-card">
-            <img src={p.image_url} alt={p.name} onError={(e) => (e.target.style.display = "none")} />
-            <h3>{p.name}</h3>
-            <p className="desc">{p.description}</p>
-            <p className="price">₹{p.price}</p>
-            <button className="add-btn" onClick={() => addToCart(p)}>Add to Cart</button>
-          </div>
-        ))}
+  {products.map((p) => (
+    <div key={p._id} className="product-card">
+      <div onClick={() => navigate(`/products/${p._id}`)} style={{ cursor: "pointer" }}>
+        <img src={p.image_url} alt={p.name} onError={(e) => (e.target.style.display = "none")} />
+        <h3>{p.name}</h3>
+        <p className="desc">{p.description}</p>
+        <p className="price">₹{p.price}</p>
       </div>
+      <button className="add-btn" onClick={() => addToCart(p)}>Add to Cart</button>
+    </div>
+  ))}
+</div>
 
       <Footer />
 
