@@ -13,6 +13,7 @@ export default function Admin() {
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
   const { logout } = useAuth();
 
   const loadProducts = async () => {
@@ -34,14 +35,14 @@ export default function Admin() {
   };
 
   const handleDeleteOrder = async (id) => {
-  if (!confirm("Delete this order?")) return;
-  try {
-    await deleteOrder(id);
-    loadOrders();
-  } catch {
-    setError("Failed to delete order");
-  }
-};
+    if (!confirm("Delete this order?")) return;
+    try {
+      await deleteOrder(id);
+      loadOrders();
+    } catch {
+      setError("Failed to delete order");
+    }
+  };
 
   useEffect(() => {
     loadProducts();
@@ -50,6 +51,35 @@ export default function Admin() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError("");
+    try {
+      const data = new FormData();
+      data.append("file", file);
+      data.append("upload_preset", "firework");
+
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/mzbbbxcj/image/upload",
+        { method: "POST", body: data }
+      );
+      const result = await res.json();
+
+      if (result.secure_url) {
+        setForm((prev) => ({ ...prev, image_url: result.secure_url }));
+      } else {
+        setError("Image upload failed");
+      }
+    } catch {
+      setError("Image upload failed");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -104,9 +134,9 @@ export default function Admin() {
   return (
     <div className="admin-page">
       <header className="admin-header">
-  <img src={logo} alt="The Cracker City" className="admin-logo" />
-  <button onClick={logout} className="logout-btn">Log out</button>
-</header>
+        <img src={logo} alt="The Cracker City" className="admin-logo" />
+        <button onClick={logout} className="logout-btn">Log out</button>
+      </header>
 
       <section className="admin-form-section">
         <h2>{editingId ? "Edit Product" : "Add Product"}</h2>
@@ -114,7 +144,23 @@ export default function Admin() {
           <input name="name" placeholder="Name" value={form.name} onChange={handleChange} required />
           <input name="description" placeholder="Description" value={form.description} onChange={handleChange} required />
           <input name="price" type="number" step="0.01" placeholder="Price" value={form.price} onChange={handleChange} required />
-          <input name="image_url" placeholder="Image URL" value={form.image_url} onChange={handleChange} required />
+
+          <div className="image-upload-field">
+            <label className="upload-label">
+              {uploading ? "Uploading..." : form.image_url ? "Change Photo" : "Choose Photo"}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: "none" }}
+                disabled={uploading}
+              />
+            </label>
+            {form.image_url && (
+              <img src={form.image_url} alt="preview" className="image-preview" />
+            )}
+          </div>
+
           <input name="stock" type="number" placeholder="Stock" value={form.stock} onChange={handleChange} />
           <input name="category" placeholder="Category (optional)" value={form.category} onChange={handleChange} />
 
@@ -163,16 +209,18 @@ export default function Admin() {
                   ))}
                 </ul>
                 <div className="order-bottom">
-  <span>Total: ₹{o.total.toFixed(2)}</span>
-  <span className="order-date">{new Date(o.created_at).toLocaleString()}</span>
-</div>
-<button className="delete-order-btn" onClick={() => handleDeleteOrder(o._id)}>Delete</button>
+                  <span>Total: ₹{o.total.toFixed(2)}</span>
+                  <span className="order-date">{new Date(o.created_at).toLocaleString()}</span>
+                </div>
+                <button className="delete-order-btn" onClick={() => handleDeleteOrder(o._id)}>Delete</button>
               </div>
             ))}
           </div>
         )}
       </section>
-        <Footer />
+
+      <Footer />
+
       <style>{`
         * { box-sizing: border-box; }
         .admin-page {
@@ -189,10 +237,9 @@ export default function Admin() {
           flex-wrap: wrap;
           gap: 12px;
         }
-        .admin-header h1 {
-          font-size: 22px;
-          color: #16161f;
-          margin: 0;
+        .admin-logo {
+          height: 40px;
+          width: auto;
         }
         .logout-btn {
           padding: 8px 16px;
@@ -228,6 +275,29 @@ export default function Admin() {
         .product-form input:focus {
           outline: none;
           border-color: #E8794E;
+        }
+        .image-upload-field {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .upload-label {
+          display: inline-block;
+          padding: 10px 14px;
+          background: #f1f1f4;
+          color: #16161f;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+          text-align: center;
+        }
+        .upload-label:hover { background: #e2e2e8; }
+        .image-preview {
+          width: 100px;
+          height: 100px;
+          object-fit: cover;
+          border-radius: 8px;
+          border: 1px solid #e2e2e8;
         }
         .admin-error {
           color: #c23a3a;
@@ -337,21 +407,17 @@ export default function Admin() {
           font-size: 13px;
           color: #6b6b7b;
         }
-          .delete-order-btn {
-  margin-top: 8px;
-  width: 100%;
-  padding: 6px;
-  background: #fbe6e6;
-  color: #c23a3a;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-}
-  .admin-logo {
-  height: 40px;
-  width: auto;
-}
+        .delete-order-btn {
+          margin-top: 8px;
+          width: 100%;
+          padding: 6px;
+          background: #fbe6e6;
+          color: #c23a3a;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 12px;
+        }
       `}</style>
     </div>
   );
