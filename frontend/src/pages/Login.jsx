@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
-import logo from "../assets/logo.jpeg";
+import logo from "../assets/logo-transparent.png";
 import Footer from "../components/Footer";
 
 export default function Login() {

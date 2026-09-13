@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getOrders, deleteOrder } from "../api/orders";
 import { getProducts, createProduct, updateProduct, deleteProduct } from "../api/products";
 import { useAuth } from "../context/AuthContext";
-import logo from "../assets/logo.jpeg";
+import logo from "../assets/logo-transparent.png";
 import Footer from "../components/Footer";
 
 const emptyForm = { name: "", description: "", price: "", image_url: "", stock: "", category: "" };

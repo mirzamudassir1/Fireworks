@@ -4,6 +4,7 @@ import { getProducts } from "../api/products";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import Footer from "../components/Footer";
+import logo from "../assets/logo-transparent.png";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -21,7 +22,7 @@ export default function Products() {
   return (
     <div className="shop-page">
       <header className="shop-header">
-        <h1>Fireworks</h1>
+        <img src={logo} alt="The Cracker City" className="shop-logo" />
         <div className="header-actions">
           <button className="cart-btn" onClick={() => navigate("/cart")}>
             🛒 Cart {totalCount > 0 && <span className="badge">{totalCount}</span>}
@@ -43,7 +44,9 @@ export default function Products() {
           </div>
         ))}
       </div>
-        <Footer />
+
+      <Footer />
+
       <style>{`
         * { box-sizing: border-box; }
         .shop-page {
@@ -60,10 +63,9 @@ export default function Products() {
           flex-wrap: wrap;
           gap: 10px;
         }
-        .shop-header h1 {
-          font-size: 22px;
-          color: #16161f;
-          margin: 0;
+        .shop-logo {
+          height: 44px;
+          width: auto;
         }
         .header-actions {
           display: flex;

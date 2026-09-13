@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { createOrder } from "../api/orders";
+import Footer from "../components/Footer";
+import logo from "../assets/logo-transparent.png";
 
 export default function Cart() {
   const { items, removeFromCart, updateQty, totalAmount, clearCart } = useCart();
@@ -61,6 +63,9 @@ export default function Cart() {
   if (success) {
     return (
       <div className="cart-page">
+        <header className="cart-header">
+          <img src={logo} alt="The Cracker City" className="cart-logo" />
+        </header>
         <div className="success-box">
           <h2>✅ Order placed!</h2>
           <p>We'll contact you on {phone} soon.</p>
@@ -68,6 +73,7 @@ export default function Cart() {
             Continue Shopping
           </button>
         </div>
+        <Footer />
         <style>{globalStyles}</style>
       </div>
     );
@@ -77,7 +83,7 @@ export default function Cart() {
     <div className="cart-page">
       <header className="cart-header">
         <button className="back-btn" onClick={() => navigate("/products")}>← Back</button>
-        <h1>Your Cart</h1>
+        <img src={logo} alt="The Cracker City" className="cart-logo" />
       </header>
 
       {items.length === 0 ? (
@@ -133,6 +139,8 @@ export default function Cart() {
         </>
       )}
 
+      <Footer />
+
       <style>{globalStyles}</style>
     </div>
   );
@@ -149,8 +157,13 @@ const globalStyles = `
   .cart-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 12px;
     margin-bottom: 20px;
+  }
+  .cart-logo {
+    height: 36px;
+    width: auto;
   }
   .back-btn {
     background: none;
@@ -158,11 +171,6 @@ const globalStyles = `
     font-size: 15px;
     color: #16161f;
     cursor: pointer;
-  }
-  .cart-header h1 {
-    font-size: 20px;
-    color: #16161f;
-    margin: 0;
   }
   .empty-msg {
     color: #6b6b7b;
