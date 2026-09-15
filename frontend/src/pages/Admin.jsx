@@ -164,17 +164,17 @@ export default function Admin() {
 
           <input name="stock" type="number" placeholder="Stock" value={form.stock} onChange={handleChange} />
           <select
-  name="category"
-  value={form.category}
-  onChange={handleChange}
-  className="category-select"
-  required
->
-  <option value="">Select a category</option>
-  {CATEGORIES.map((cat) => (
-    <option key={cat} value={cat}>{cat}</option>
-  ))}
-</select>
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            className="category-select"
+            required
+          >
+            <option value="">Select a category</option>
+            {CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
 
           {error && <p className="admin-error">{error}</p>}
 
@@ -285,6 +285,22 @@ export default function Admin() {
           background: #ffffff;
         }
         .product-form input:focus {
+          outline: none;
+          border-color: #E8794E;
+        }
+        .category-select {
+          box-sizing: border-box;
+          width: 100%;
+          min-height: 42px;
+          padding: 10px 12px;
+          font-size: 14px;
+          border: 1.5px solid #e2e2e8;
+          border-radius: 8px;
+          color: #16161f;
+          background: #ffffff;
+          cursor: pointer;
+        }
+        .category-select:focus {
           outline: none;
           border-color: #E8794E;
         }

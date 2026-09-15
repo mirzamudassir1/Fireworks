@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getProducts } from "../api/products";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { CATEGORIES } from "../constants/categories";
 import Footer from "../components/Footer";
 import logo from "../assets/logo-transparent.png";
 
@@ -12,12 +13,22 @@ export default function Products() {
   const { addToCart, totalCount } = useCart();
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
     getProducts()
       .then((res) => setProducts(res.data))
       .catch(() => setError("Failed to load products"));
   }, []);
+  const visibleProducts =
+  selectedCategory === "All"
+    ? products
+    : products.filter((p) => p.category === selectedCategory);
+
+// Only show categories that actually have products
+const availableCategories = CATEGORIES.filter((cat) =>
+  products.some((p) => p.category === cat)
+);
 
   return (
     <div className="shop-page">
@@ -33,8 +44,25 @@ export default function Products() {
 
       {error && <p className="shop-error">{error}</p>}
 
+      <div className="category-bar">
+  <button
+    className={selectedCategory === "All" ? "cat-chip active" : "cat-chip"}
+    onClick={() => setSelectedCategory("All")}
+  >
+    All
+  </button>
+  {availableCategories.map((cat) => (
+    <button
+      key={cat}
+      className={selectedCategory === cat ? "cat-chip active" : "cat-chip"}
+      onClick={() => setSelectedCategory(cat)}
+    >
+      {cat}
+    </button>
+  ))}
+</div>
       <div className="product-grid">
-  {products.map((p) => (
+  {visibleProducts.map((p) => (
     <div key={p._id} className="product-card">
       <div onClick={() => navigate(`/products/${p._id}`)} style={{ cursor: "pointer" }}>
         <img src={p.image_url} alt={p.name} onError={(e) => (e.target.style.display = "none")} />
@@ -149,6 +177,34 @@ export default function Products() {
           font-size: 13px;
         }
         .add-btn:hover { background: #E8794E; }
+        .category-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+.category-bar::-webkit-scrollbar { height: 4px; }
+.category-bar::-webkit-scrollbar-thumb { background: #e2e2e8; border-radius: 4px; }
+.cat-chip {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  font-size: 13px;
+  border: 1.5px solid #e2e2e8;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #4a4a55;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cat-chip:hover { border-color: #F2A65A; }
+.cat-chip.active {
+  background: #E8794E;
+  border-color: #E8794E;
+  color: #ffffff;
+  font-weight: 600;
+}
       `}</style>
     </div>
   );
