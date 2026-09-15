@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { CATEGORIES } from "../constants/categories";
 import { getOrders, deleteOrder } from "../api/orders";
 import { getProducts, createProduct, updateProduct, deleteProduct } from "../api/products";
 import { useAuth } from "../context/AuthContext";
@@ -162,7 +163,18 @@ export default function Admin() {
           </div>
 
           <input name="stock" type="number" placeholder="Stock" value={form.stock} onChange={handleChange} />
-          <input name="category" placeholder="Category (optional)" value={form.category} onChange={handleChange} />
+          <select
+  name="category"
+  value={form.category}
+  onChange={handleChange}
+  className="category-select"
+  required
+>
+  <option value="">Select a category</option>
+  {CATEGORIES.map((cat) => (
+    <option key={cat} value={cat}>{cat}</option>
+  ))}
+</select>
 
           {error && <p className="admin-error">{error}</p>}
 
