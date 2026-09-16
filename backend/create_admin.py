@@ -1,10 +1,18 @@
 import asyncio
+import os
 from app.database import user_collection
 from app.auth import hash_password
+from dotenv import load_dotenv
+
+load_dotenv()
 
 async def create_admin():
-    email = "admin@fireworks.com"       # change to whatever you want
-    password = "123123123"  # change this too
+    email = os.getenv("ADMIN_EMAIL")
+    password = os.getenv("ADMIN_PASSWORD")
+
+    if not email or not password:
+        print("❌ Set ADMIN_EMAIL and ADMIN_PASSWORD in your .env file first.")
+        return
 
     existing = await user_collection.find_one({"email": email})
     if existing:
