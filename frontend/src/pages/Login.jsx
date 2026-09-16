@@ -4,32 +4,33 @@ import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo-transparent.png";
 import Footer from "../components/Footer";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
-  try {
-    const res = await api.post("/auth/login", { email, password });
-    login(res.data.access_token);
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await api.post("/auth/login", { email, password });
+      login(res.data.access_token);
 
-    // Decode role right after login to decide where to send them
-    const payload = JSON.parse(atob(res.data.access_token.split(".")[1]));
-    navigate(payload.role === "admin" ? "/admin" : "/products");
-  } catch (err) {
-    setError(err.response?.data?.detail || "Login failed");
-  } finally {
-    setLoading(false);
-  }
-};
+      const payload = JSON.parse(atob(res.data.access_token.split(".")[1]));
+      navigate(payload.role === "admin" ? "/admin" : "/products");
+    } catch (err) {
+      setError(err.response?.data?.detail || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="auth-page">
@@ -79,9 +80,9 @@ export default function Login() {
         </svg>
 
         <div className="auth-visual-text">
-  <img src={logo} alt="The Cracker City" className="brand-logo" />
-  <p className="brand-tagline">Light up every celebration.</p>
-</div>
+          <img src={logo} alt="The Cracker City" className="brand-logo" />
+          <p className="brand-tagline">Light up every celebration.</p>
+        </div>
       </div>
 
       <div className="auth-form-panel">
@@ -104,14 +105,24 @@ export default function Login() {
 
             <div className="field">
               <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
+              <div className="password-wrap">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             {error && <p className="auth-error">{error}</p>}
@@ -126,7 +137,9 @@ export default function Login() {
           </p>
         </div>
       </div>
-         <Footer />
+
+      <Footer />
+
       <style>{`
         * { box-sizing: border-box; }
 
@@ -159,11 +172,10 @@ export default function Login() {
           text-align: center;
         }
 
-        .brand-mark {
-          font-size: 30px;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          color: #F7EFE0;
+        .brand-logo {
+          max-width: 220px;
+          width: 80%;
+          height: auto;
         }
 
         .brand-tagline {
@@ -225,10 +237,39 @@ export default function Login() {
           outline: none;
           transition: border-color 0.15s ease;
           color: #16161F;
+          width: 100%;
         }
 
         .field input:focus {
           border-color: #E8794E;
+        }
+
+        .password-wrap {
+          position: relative;
+          display: flex;
+        }
+
+        .password-wrap input {
+          flex: 1;
+          padding-right: 44px;
+        }
+
+        .toggle-password {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 4px;
+          display: flex;
+          align-items: center;
+          color: #6b6b7b;
+        }
+
+        .toggle-password:hover {
+          color: #16161f;
         }
 
         .auth-error {
@@ -277,11 +318,6 @@ export default function Login() {
           .auth-visual { min-height: 260px; padding: 24px; }
           .burst { width: 45%; }
         }
-        .brand-logo {
-  max-width: 220px;
-  width: 80%;
-  height: auto;
-}
       `}</style>
     </div>
   );

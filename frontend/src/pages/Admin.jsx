@@ -190,7 +190,7 @@ export default function Admin() {
         <div className="product-grid">
           {products.map((p) => (
             <div key={p._id} className="product-card">
-              <img src={p.image_url} alt={p.name} onError={(e) => (e.target.style.display = "none")} />
+              <img src={p.image_url} alt={p.name} loading="lazy" onError={(e) => (e.target.style.display = "none")} />
               <h3>{p.name}</h3>
               <p className="price">₹{p.price}</p>
               <p className="stock">Stock: {p.stock}</p>

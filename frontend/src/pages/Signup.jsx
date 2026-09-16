@@ -3,12 +3,15 @@ import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo-transparent.png";
+import Footer from "../components/Footer";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -54,14 +57,24 @@ export default function Signup() {
 
             <div className="field">
               <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
+              <div className="password-wrap">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             {error && <p className="auth-error">{error}</p>}
@@ -76,6 +89,8 @@ export default function Signup() {
           </p>
         </div>
       </div>
+
+      <Footer />
 
       <style>{`
         * { box-sizing: border-box; }
@@ -166,10 +181,39 @@ export default function Signup() {
           transition: border-color 0.15s ease;
           background: #FFFFFF;
           color: #16161F;
+          width: 100%;
         }
 
         .field input:focus {
           border-color: #E8794E;
+        }
+
+        .password-wrap {
+          position: relative;
+          display: flex;
+        }
+
+        .password-wrap input {
+          flex: 1;
+          padding-right: 44px;
+        }
+
+        .toggle-password {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 4px;
+          display: flex;
+          align-items: center;
+          color: #6b6b7b;
+        }
+
+        .toggle-password:hover {
+          color: #16161f;
         }
 
         .auth-error {
@@ -215,7 +259,7 @@ export default function Signup() {
 
         @media (max-width: 800px) {
           .auth-page { flex-direction: column; }
-          .auth-visual { min-height: 220px; padding: 24px; }
+          .auth-visual { min-height: 260px; padding: 24px; }
           .brand-logo { width: 55%; }
         }
       `}</style>

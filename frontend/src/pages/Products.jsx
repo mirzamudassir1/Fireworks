@@ -11,7 +11,7 @@ export default function Products() {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const { addToCart, totalCount } = useCart();
+  const { addToCart, updateQty, items, totalCount } = useCart();
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -20,6 +20,11 @@ export default function Products() {
       .then((res) => setProducts(res.data))
       .catch(() => setError("Failed to load products"));
   }, []);
+
+  const getQty = (productId) => {
+    const item = items.find((i) => i._id === productId);
+    return item ? item.qty : 0;
+  };
 
   const query = search.trim().toLowerCase();
 
@@ -71,12 +76,21 @@ export default function Products() {
               .map((p) => (
                 <div key={p._id} className="product-card">
                   <div onClick={() => navigate(`/products/${p._id}`)} style={{ cursor: "pointer" }}>
-                    <img src={p.image_url} alt={p.name} onError={(e) => (e.target.style.display = "none")} />
+                    <img src={p.image_url} alt={p.name} loading="lazy" onError={(e) => (e.target.style.display = "none")} />
                     <h3>{p.name}</h3>
                     <p className="desc">{p.description}</p>
                     <p className="price">₹{p.price}</p>
                   </div>
-                  <button className="add-btn" onClick={() => addToCart(p)}>Add to Cart</button>
+
+                  {getQty(p._id) === 0 ? (
+                    <button className="add-btn" onClick={() => addToCart(p)}>Add to Cart</button>
+                  ) : (
+                    <div className="qty-stepper">
+                      <button onClick={() => updateQty(p._id, getQty(p._id) - 1)}>−</button>
+                      <span>{getQty(p._id)}</span>
+                      <button onClick={() => updateQty(p._id, getQty(p._id) + 1)}>+</button>
+                    </div>
+                  )}
                 </div>
               ))}
           </div>
@@ -165,7 +179,7 @@ export default function Products() {
           color: #16161f;
           margin: 0 0 12px;
           padding-bottom: 8px;
-          border-bottom: 2px solid #F2A65A;
+          border-bottom: 2px solid #4b2298;
         }
         .product-grid {
           display: grid;
@@ -215,6 +229,32 @@ export default function Products() {
           font-size: 13px;
         }
         .add-btn:hover { background: #E8794E; }
+        .qty-stepper {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: #16161f;
+          border-radius: 8px;
+          padding: 6px 4px;
+        }
+        .qty-stepper button {
+          background: none;
+          border: none;
+          color: #fff;
+          font-size: 16px;
+          width: 28px;
+          height: 28px;
+          cursor: pointer;
+          border-radius: 6px;
+        }
+        .qty-stepper button:hover {
+          background: #E8794E;
+        }
+        .qty-stepper span {
+          color: #fff;
+          font-size: 14px;
+          font-weight: 600;
+        }
       `}</style>
     </div>
   );

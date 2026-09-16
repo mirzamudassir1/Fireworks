@@ -22,9 +22,12 @@ export function CartProvider({ children }) {
   };
 
   const updateQty = (id, qty) => {
-    if (qty < 1) return;
-    setItems((prev) => prev.map((i) => (i._id === id ? { ...i, qty } : i)));
-  };
+  if (qty < 1) {
+    removeFromCart(id);
+    return;
+  }
+  setItems((prev) => prev.map((i) => (i._id === id ? { ...i, qty } : i)));
+};
 
   const clearCart = () => setItems([]);
 
