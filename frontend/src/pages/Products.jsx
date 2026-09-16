@@ -13,22 +13,17 @@ export default function Products() {
   const { addToCart, totalCount } = useCart();
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
     getProducts()
       .then((res) => setProducts(res.data))
       .catch(() => setError("Failed to load products"));
   }, []);
-  const visibleProducts =
-  selectedCategory === "All"
-    ? products
-    : products.filter((p) => p.category === selectedCategory);
 
-// Only show categories that actually have products
-const availableCategories = CATEGORIES.filter((cat) =>
-  products.some((p) => p.category === cat)
-);
+  // Only show categories that actually have at least one product
+  const groupedCategories = CATEGORIES.filter((cat) =>
+    products.some((p) => p.category === cat)
+  );
 
   return (
     <div className="shop-page">
@@ -44,36 +39,26 @@ const availableCategories = CATEGORIES.filter((cat) =>
 
       {error && <p className="shop-error">{error}</p>}
 
-      <div className="category-bar">
-  <button
-    className={selectedCategory === "All" ? "cat-chip active" : "cat-chip"}
-    onClick={() => setSelectedCategory("All")}
-  >
-    All
-  </button>
-  {availableCategories.map((cat) => (
-    <button
-      key={cat}
-      className={selectedCategory === cat ? "cat-chip active" : "cat-chip"}
-      onClick={() => setSelectedCategory(cat)}
-    >
-      {cat}
-    </button>
-  ))}
-</div>
-      <div className="product-grid">
-  {visibleProducts.map((p) => (
-    <div key={p._id} className="product-card">
-      <div onClick={() => navigate(`/products/${p._id}`)} style={{ cursor: "pointer" }}>
-        <img src={p.image_url} alt={p.name} onError={(e) => (e.target.style.display = "none")} />
-        <h3>{p.name}</h3>
-        <p className="desc">{p.description}</p>
-        <p className="price">₹{p.price}</p>
-      </div>
-      <button className="add-btn" onClick={() => addToCart(p)}>Add to Cart</button>
-    </div>
-  ))}
-</div>
+      {groupedCategories.map((category) => (
+        <section key={category} className="category-section">
+          <h2 className="category-title">{category}</h2>
+          <div className="product-grid">
+            {products
+              .filter((p) => p.category === category)
+              .map((p) => (
+                <div key={p._id} className="product-card">
+                  <div onClick={() => navigate(`/products/${p._id}`)} style={{ cursor: "pointer" }}>
+                    <img src={p.image_url} alt={p.name} onError={(e) => (e.target.style.display = "none")} />
+                    <h3>{p.name}</h3>
+                    <p className="desc">{p.description}</p>
+                    <p className="price">₹{p.price}</p>
+                  </div>
+                  <button className="add-btn" onClick={() => addToCart(p)}>Add to Cart</button>
+                </div>
+              ))}
+          </div>
+        </section>
+      ))}
 
       <Footer />
 
@@ -129,6 +114,17 @@ const availableCategories = CATEGORIES.filter((cat) =>
           color: #16161f;
         }
         .shop-error { color: #c23a3a; font-size: 14px; }
+        .category-section {
+          margin-bottom: 32px;
+        }
+        .category-title {
+          font-size: 17px;
+          font-weight: 700;
+          color: #16161f;
+          margin: 0 0 12px;
+          padding-bottom: 8px;
+          border-bottom: 2px solid #F2A65A;
+        }
         .product-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -177,34 +173,6 @@ const availableCategories = CATEGORIES.filter((cat) =>
           font-size: 13px;
         }
         .add-btn:hover { background: #E8794E; }
-        .category-bar {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 10px;
-  margin-bottom: 16px;
-  -webkit-overflow-scrolling: touch;
-}
-.category-bar::-webkit-scrollbar { height: 4px; }
-.category-bar::-webkit-scrollbar-thumb { background: #e2e2e8; border-radius: 4px; }
-.cat-chip {
-  flex-shrink: 0;
-  padding: 7px 14px;
-  font-size: 13px;
-  border: 1.5px solid #e2e2e8;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #4a4a55;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.cat-chip:hover { border-color: #F2A65A; }
-.cat-chip.active {
-  background: #E8794E;
-  border-color: #E8794E;
-  color: #ffffff;
-  font-weight: 600;
-}
       `}</style>
     </div>
   );
