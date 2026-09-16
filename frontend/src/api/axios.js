@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://fireworks-oxud.onrender.com",
+  baseURL: "https://fireworks-gqdp.onrender.com",
 });
 
 // Attach the saved token to every request automatically, if one exists
