@@ -3,7 +3,7 @@
 A full-stack ecommerce web app built for a friend's fireworks business, doubling as a personal portfolio project. Customers can browse products and check out; the admin has full control over the product catalog and order list.
 
 **Live site:** https://fireworks-bay.vercel.app
-**Live API:** https://fireworks-oxud.onrender.com/docs
+**Live API:**  https://fireworks-oxud.onrender.com/docs
 
 ---
 
