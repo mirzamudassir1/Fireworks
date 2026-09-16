@@ -1,10 +1,14 @@
+import os
+from dotenv import load_dotenv
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime, timedelta
 
+load_dotenv()
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "change-this-to-a-random-secret-later"  # move to .env before deploying
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
 
