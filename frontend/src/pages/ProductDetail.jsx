@@ -8,10 +8,15 @@ import logo from "../assets/logo-transparent.png";
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, updateQty, items } = useCart();
   const [product, setProduct] = useState(null);
   const [error, setError] = useState("");
   const [added, setAdded] = useState(false);
+
+  const getQty = (productId) => {
+    const item = items.find((i) => i._id === productId);
+    return item ? item.qty : 0;
+  };
 
   useEffect(() => {
     getProduct(id)
@@ -56,13 +61,21 @@ export default function ProductDetail() {
             {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
           </p>
 
-          <button
-            className="detail-add-btn"
-            onClick={handleAdd}
-            disabled={product.stock <= 0}
-          >
-            {added ? "Added ✓" : "Add to Cart"}
-          </button>
+          {getQty(product._id) === 0 ? (
+            <button
+              className="detail-add-btn"
+              onClick={handleAdd}
+              disabled={product.stock <= 0}
+            >
+              {added ? "Added ✓" : "Add to Cart"}
+            </button>
+          ) : (
+            <div className="detail-qty-stepper">
+              <button onClick={() => updateQty(product._id, getQty(product._id) - 1)}>−</button>
+              <span>{getQty(product._id)}</span>
+              <button onClick={() => updateQty(product._id, getQty(product._id) + 1)}>+</button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -106,12 +119,12 @@ export default function ProductDetail() {
           margin: 0 auto;
         }
         .detail-image {
-  width: 100%;
-  border-radius: 14px;
-  object-fit: contain;
-  max-height: 320px;
-  background: #f9f9fa;
-}
+          width: 100%;
+          border-radius: 14px;
+          object-fit: contain;
+          max-height: 320px;
+          background: #f9f9fa;
+        }
         .detail-info h1 {
           font-size: 22px;
           color: #16161f;
@@ -147,6 +160,32 @@ export default function ProductDetail() {
         }
         .detail-add-btn:hover:not(:disabled) { background: #E8794E; }
         .detail-add-btn:disabled { opacity: 0.5; cursor: default; }
+        .detail-qty-stepper {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: #16161f;
+          border-radius: 10px;
+          padding: 10px 8px;
+        }
+        .detail-qty-stepper button {
+          background: none;
+          border: none;
+          color: #fff;
+          font-size: 20px;
+          width: 40px;
+          height: 40px;
+          cursor: pointer;
+          border-radius: 8px;
+        }
+        .detail-qty-stepper button:hover {
+          background: #E8794E;
+        }
+        .detail-qty-stepper span {
+          color: #fff;
+          font-size: 16px;
+          font-weight: 600;
+        }
       `}</style>
     </div>
   );
