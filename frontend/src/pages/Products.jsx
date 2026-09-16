@@ -10,6 +10,7 @@ import logo from "../assets/logo-transparent.png";
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
   const { addToCart, totalCount } = useCart();
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -20,9 +21,19 @@ export default function Products() {
       .catch(() => setError("Failed to load products"));
   }, []);
 
-  // Only show categories that actually have at least one product
+  const query = search.trim().toLowerCase();
+
+  const filteredProducts = query
+    ? products.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          (p.category || "").toLowerCase().includes(query)
+      )
+    : products;
+
+  // Only show categories that actually have at least one matching product
   const groupedCategories = CATEGORIES.filter((cat) =>
-    products.some((p) => p.category === cat)
+    filteredProducts.some((p) => p.category === cat)
   );
 
   return (
@@ -37,13 +48,25 @@ export default function Products() {
         </div>
       </header>
 
+      <input
+        type="text"
+        className="search-bar"
+        placeholder="Search by product name or category..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
       {error && <p className="shop-error">{error}</p>}
+
+      {query && groupedCategories.length === 0 && (
+        <p className="no-results">No products match "{search}"</p>
+      )}
 
       {groupedCategories.map((category) => (
         <section key={category} className="category-section">
           <h2 className="category-title">{category}</h2>
           <div className="product-grid">
-            {products
+            {filteredProducts
               .filter((p) => p.category === category)
               .map((p) => (
                 <div key={p._id} className="product-card">
@@ -74,7 +97,7 @@ export default function Products() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 20px;
+          margin-bottom: 16px;
           flex-wrap: wrap;
           gap: 10px;
         }
@@ -113,7 +136,26 @@ export default function Products() {
           font-size: 14px;
           color: #16161f;
         }
+        .search-bar {
+          width: 100%;
+          padding: 12px 16px;
+          font-size: 14px;
+          border: 1.5px solid #e2e2e8;
+          border-radius: 10px;
+          color: #16161f;
+          margin-bottom: 20px;
+        }
+        .search-bar:focus {
+          outline: none;
+          border-color: #E8794E;
+        }
         .shop-error { color: #c23a3a; font-size: 14px; }
+        .no-results {
+          color: #6b6b7b;
+          font-size: 14px;
+          text-align: center;
+          margin: 24px 0;
+        }
         .category-section {
           margin-bottom: 32px;
         }
