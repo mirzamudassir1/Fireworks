@@ -40,10 +40,10 @@ export default function Signup() {
         callback: handleGoogleResponse,
       });
       window.google.accounts.id.renderButton(googleBtnRef.current, {
-        theme: "outline",
-        size: "large",
-        width: "100%",
-      });
+  theme: "outline",
+  size: "large",
+  width: 360,
+});
     }
   }, []);
 
