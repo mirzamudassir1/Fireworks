@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo-transparent.png";
 import Footer from "../components/Footer";
 import { Eye, EyeOff } from "lucide-react";
+import { GOOGLE_CLIENT_ID } from "../constants/google";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -14,6 +15,37 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  const googleBtnRef = useRef(null);
+
+  const handleGoogleResponse = async (response) => {
+    setError("");
+    setLoading(true);
+    try {
+      const res = await api.post("/auth/google", { token: response.credential });
+      login(res.data.access_token);
+      const payload = JSON.parse(atob(res.data.access_token.split(".")[1]));
+      navigate(payload.role === "admin" ? "/admin" : "/products");
+    } catch (err) {
+      setError(err.response?.data?.detail || "Google sign-in failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (window.google && googleBtnRef.current) {
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleResponse,
+      });
+      window.google.accounts.id.renderButton(googleBtnRef.current, {
+        theme: "outline",
+        size: "large",
+        width: "100%",
+      });
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -83,6 +115,9 @@ export default function Signup() {
               {loading ? "Creating account…" : "Sign up"}
             </button>
           </form>
+
+          <div className="divider"><span>or</span></div>
+          <div ref={googleBtnRef}></div>
 
           <p className="auth-footer">
             Already have an account? <Link to="/login">Log in</Link>
@@ -255,6 +290,25 @@ export default function Signup() {
           color: #E8794E;
           font-weight: 600;
           text-decoration: none;
+        }
+
+        .divider {
+          display: flex;
+          align-items: center;
+          margin: 20px 0;
+          color: #9a9aa5;
+          font-size: 13px;
+        }
+
+        .divider::before, .divider::after {
+          content: "";
+          flex: 1;
+          height: 1px;
+          background: #e2e2e8;
+        }
+
+        .divider span {
+          padding: 0 12px;
         }
 
         @media (max-width: 800px) {

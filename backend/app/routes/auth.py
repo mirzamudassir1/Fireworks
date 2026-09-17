@@ -1,11 +1,16 @@
+import os
 from fastapi import APIRouter, HTTPException, Depends
 from app.database import user_collection
-from app.models.user import UserSignup, UserLogin, UpdateCredentials
+from app.models.user import UserSignup, UserLogin, UpdateCredentials, GoogleAuthRequest
 from app.auth import hash_password, verify_password, create_access_token
 from app.dependencies import get_current_user
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 from bson import ObjectId
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 
 @router.post("/signup")
 async def signup(user: UserSignup):
@@ -31,6 +36,37 @@ async def login(user: UserLogin):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     token = create_access_token({"sub": str(db_user["_id"]), "role": db_user["role"]})
+    return {"access_token": token, "token_type": "bearer"}
+
+@router.post("/google")
+async def google_auth(payload: GoogleAuthRequest):
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            payload.token, google_requests.Request(), GOOGLE_CLIENT_ID
+        )
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid Google token")
+
+    email = idinfo.get("email")
+    if not email:
+        raise HTTPException(status_code=400, detail="Google account has no email")
+
+    user_doc = await user_collection.find_one({"email": email})
+    if not user_doc:
+        new_user = {
+            "email": email,
+            "hashed_password": None,
+            "role": "user",
+            "auth_provider": "google",
+        }
+        result = await user_collection.insert_one(new_user)
+        user_id = str(result.inserted_id)
+        role = "user"
+    else:
+        user_id = str(user_doc["_id"])
+        role = user_doc["role"]
+
+    token = create_access_token({"sub": user_id, "role": role})
     return {"access_token": token, "token_type": "bearer"}
 
 @router.put("/update-credentials")

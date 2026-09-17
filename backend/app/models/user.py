@@ -18,3 +18,6 @@ class UpdateCredentials(BaseModel):
     current_password: str
     new_email: Optional[EmailStr] = None
     new_password: Optional[str] = None
+
+class GoogleAuthRequest(BaseModel):
+    token: str
