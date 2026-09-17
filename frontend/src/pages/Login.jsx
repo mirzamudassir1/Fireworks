@@ -34,18 +34,21 @@ export default function Login() {
   };
 
   useEffect(() => {
-    if (window.google && googleBtnRef.current) {
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleResponse,
-      });
-      window.google.accounts.id.renderButton(googleBtnRef.current, {
-        theme: "outline",
-        size: "large",
-        width: "100%",
-      });
-    }
-  }, []);
+  if (window.google && googleBtnRef.current) {
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleResponse,
+      auto_select: false,
+    });
+    window.google.accounts.id.disableAutoSelect();
+    window.google.accounts.id.renderButton(googleBtnRef.current, {
+      theme: "outline",
+      size: "large",
+      width: 360,
+      text: "signin_with",
+    });
+  }
+}, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
