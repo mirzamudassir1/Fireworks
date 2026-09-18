@@ -13,10 +13,36 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [sparkles, setSparkles] = useState([]);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const googleBtnRef = useRef(null);
+
+  const handleVisualClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const colors = ["#F5B942", "#E8794E", "#F7D774", "#FF9F6B"];
+
+    const newSparkles = Array.from({ length: 14 }).map(() => {
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 400 + Math.random() * 140;
+      return {
+        id: Date.now() + Math.random(),
+        x,
+        y,
+        dx: Math.cos(angle) * distance,
+        dy: Math.sin(angle) * distance,
+        color: colors[Math.floor(Math.random() * colors.length)],
+      };
+    });
+
+    setSparkles((prev) => [...prev, ...newSparkles]);
+    setTimeout(() => {
+      setSparkles((prev) => prev.filter((s) => !newSparkles.includes(s)));
+    }, 700);
+  };
 
   const handleGoogleResponse = async (response) => {
     setError("");
@@ -34,21 +60,21 @@ export default function Login() {
   };
 
   useEffect(() => {
-  if (window.google && googleBtnRef.current) {
-    window.google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleGoogleResponse,
-      auto_select: false,
-    });
-    window.google.accounts.id.disableAutoSelect();
-    window.google.accounts.id.renderButton(googleBtnRef.current, {
-      theme: "outline",
-      size: "large",
-      width: 360,
-      text: "signin_with",
-    });
-  }
-}, []);
+    if (window.google && googleBtnRef.current) {
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleResponse,
+        auto_select: false,
+      });
+      window.google.accounts.id.disableAutoSelect();
+      window.google.accounts.id.renderButton(googleBtnRef.current, {
+        theme: "outline",
+        size: "large",
+        width: 360,
+        text: "signin_with",
+      });
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,7 +95,7 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <div className="auth-visual">
+      <div className="auth-visual" onClick={handleVisualClick}>
         <svg
           className="burst"
           viewBox="0 0 400 400"
@@ -118,6 +144,20 @@ export default function Login() {
           <img src={logo} alt="The Cracker City" className="brand-logo" />
           <p className="brand-tagline">Light up every celebration.</p>
         </div>
+
+        {sparkles.map((s) => (
+          <span
+            key={s.id}
+            className="sparkle-particle"
+            style={{
+              left: s.x,
+              top: s.y,
+              background: s.color,
+              "--dx": `${s.dx}px`,
+              "--dy": `${s.dy}px`,
+            }}
+          />
+        ))}
       </div>
 
       <div className="auth-form-panel">
@@ -198,6 +238,21 @@ export default function Login() {
           position: relative;
           min-height: 100vh;
           padding: 40px;
+          overflow: hidden;
+        }
+
+        .sparkle-particle {
+          position: absolute;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          pointer-events: none;
+          animation: sparkle-burst 7s ease-out forwards;
+        }
+
+        @keyframes sparkle-burst {
+          0% { transform: translate(0, 0) scale(1); opacity: 1; }
+          100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
         }
 
         .burst {
