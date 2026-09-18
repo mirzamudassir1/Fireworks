@@ -34,21 +34,21 @@ export default function Signup() {
   };
 
   useEffect(() => {
-  if (window.google && googleBtnRef.current) {
-    window.google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleGoogleResponse,
-      auto_select: false,
-    });
-    window.google.accounts.id.disableAutoSelect();
-    window.google.accounts.id.renderButton(googleBtnRef.current, {
-      theme: "outline",
-      size: "large",
-      width: 360,
-      text: "signin_with",
-    });
-  }
-}, []);
+    if (window.google && googleBtnRef.current) {
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleResponse,
+        auto_select: false,
+      });
+      window.google.accounts.id.disableAutoSelect();
+      window.google.accounts.id.renderButton(googleBtnRef.current, {
+        theme: "outline",
+        size: "large",
+        width: 360,
+        text: "signup_with",
+      });
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,8 +68,54 @@ export default function Signup() {
   return (
     <div className="auth-page">
       <div className="auth-visual">
-        <img src={logo} alt="The Cracker City" className="brand-logo" />
-        <p className="brand-tagline">Light up every celebration.</p>
+        <svg
+          className="burst"
+          viewBox="0 0 400 400"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle cx="200" cy="200" r="3" fill="#E8794E" />
+          {Array.from({ length: 16 }).map((_, i) => {
+            const angle = (i / 16) * Math.PI * 2;
+            const len = i % 2 === 0 ? 150 : 95;
+            const x2 = 200 + Math.cos(angle) * len;
+            const y2 = 200 + Math.sin(angle) * len;
+            const colors = ["#E8794E", "#F2A65A", "#D96B8C"];
+            return (
+              <line
+                key={i}
+                x1="200"
+                y1="200"
+                x2={x2}
+                y2={y2}
+                stroke={colors[i % colors.length]}
+                strokeWidth={i % 2 === 0 ? 2.5 : 1.5}
+                strokeLinecap="round"
+                opacity={i % 2 === 0 ? 0.9 : 0.5}
+              />
+            );
+          })}
+          {Array.from({ length: 16 }).map((_, i) => {
+            const angle = (i / 16) * Math.PI * 2;
+            const len = i % 2 === 0 ? 150 : 95;
+            const x2 = 200 + Math.cos(angle) * len;
+            const y2 = 200 + Math.sin(angle) * len;
+            return (
+              <circle
+                key={`dot-${i}`}
+                cx={x2}
+                cy={y2}
+                r={i % 2 === 0 ? 3 : 2}
+                fill="#F2A65A"
+              />
+            );
+          })}
+        </svg>
+
+        <div className="auth-visual-text">
+          <img src={logo} alt="The Cracker City" className="brand-logo" />
+          <p className="brand-tagline">Light up every celebration.</p>
+        </div>
       </div>
 
       <div className="auth-form-panel">
@@ -143,7 +189,7 @@ export default function Signup() {
 
         .auth-visual {
           flex: 1;
-          background: linear-gradient(160deg, #FFF6EC 0%, #FDEDE0 100%);
+          background: linear-gradient(160deg, #020714 0%, #133cad 100%);
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -153,16 +199,26 @@ export default function Signup() {
           padding: 40px;
         }
 
+        .burst {
+          width: min(70%, 420px);
+          height: auto;
+        }
+
+        .auth-visual-text {
+          margin-top: 24px;
+          text-align: center;
+        }
+
         .brand-logo {
-          width: min(70%, 320px);
+          max-width: 220px;
+          width: 80%;
           height: auto;
         }
 
         .brand-tagline {
-          margin-top: 16px;
+          margin-top: 8px;
           font-size: 15px;
           color: #7A7A85;
-          text-align: center;
         }
 
         .auth-form-panel {
@@ -217,7 +273,7 @@ export default function Signup() {
           border-radius: 8px;
           outline: none;
           transition: border-color 0.15s ease;
-          background: #FFFFFF;
+          background: #f9f9fa;
           color: #16161F;
           width: 100%;
         }
@@ -317,7 +373,7 @@ export default function Signup() {
         @media (max-width: 800px) {
           .auth-page { flex-direction: column; }
           .auth-visual { min-height: 260px; padding: 24px; }
-          .brand-logo { width: 55%; }
+          .burst { width: 45%; }
         }
       `}</style>
     </div>
