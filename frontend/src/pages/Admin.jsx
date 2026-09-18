@@ -15,6 +15,7 @@ export default function Admin() {
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState("products");
   const { logout } = useAuth();
 
   const loadProducts = async () => {
@@ -136,100 +137,120 @@ export default function Admin() {
     <div className="admin-page">
       <header className="admin-header">
         <img src={logo} alt="The Cracker City" className="admin-logo" />
-        <button onClick={logout} className="logout-btn">Log out</button>
+        <div className="header-actions">
+          <button
+            className={activeTab === "products" ? "tab-btn active" : "tab-btn"}
+            onClick={() => setActiveTab("products")}
+          >
+            Products
+          </button>
+          <button
+            className={activeTab === "orders" ? "tab-btn active" : "tab-btn"}
+            onClick={() => setActiveTab("orders")}
+          >
+            Orders {orders.length > 0 && <span className="tab-badge">{orders.length}</span>}
+          </button>
+          <button onClick={logout} className="logout-btn">Log out</button>
+        </div>
       </header>
 
-      <section className="admin-form-section">
-        <h2>{editingId ? "Edit Product" : "Add Product"}</h2>
-        <form onSubmit={handleSubmit} className="product-form">
-          <input name="name" placeholder="Name" value={form.name} onChange={handleChange} required />
-          <input name="description" placeholder="Description" value={form.description} onChange={handleChange} required />
-          <input name="price" type="number" step="0.01" placeholder="Price" value={form.price} onChange={handleChange} required />
+      {activeTab === "products" && (
+        <>
+          <section className="admin-form-section">
+            <h2>{editingId ? "Edit Product" : "Add Product"}</h2>
+            <form onSubmit={handleSubmit} className="product-form">
+              <input name="name" placeholder="Name" value={form.name} onChange={handleChange} required />
+              <input name="description" placeholder="Description" value={form.description} onChange={handleChange} required />
+              <input name="price" type="number" step="0.01" placeholder="Price" value={form.price} onChange={handleChange} required />
 
-          <div className="image-upload-field">
-            <label className="upload-label">
-              {uploading ? "Uploading..." : form.image_url ? "Change Photo" : "Choose Photo"}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                style={{ display: "none" }}
-                disabled={uploading}
-              />
-            </label>
-            {form.image_url && (
-              <img src={form.image_url} alt="preview" className="image-preview" />
-            )}
-          </div>
-
-          <input name="stock" type="number" placeholder="Stock" value={form.stock} onChange={handleChange} />
-          <select
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            className="category-select"
-            required
-          >
-            <option value="">Select a category</option>
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-
-          {error && <p className="admin-error">{error}</p>}
-
-          <div className="form-actions">
-            <button type="submit" className="save-btn">{editingId ? "Update" : "Add"} Product</button>
-            {editingId && <button type="button" onClick={cancelEdit} className="cancel-btn">Cancel</button>}
-          </div>
-        </form>
-      </section>
-
-      <section className="admin-list-section">
-        <h2>Products ({products.length})</h2>
-        <div className="product-grid">
-          {products.map((p) => (
-            <div key={p._id} className="product-card">
-              <img src={p.image_url} alt={p.name} loading="lazy" onError={(e) => (e.target.style.display = "none")} />
-              <h3>{p.name}</h3>
-              <p className="price">₹{p.price}</p>
-              <p className="stock">Stock: {p.stock}</p>
-              <div className="card-actions">
-                <button onClick={() => handleEdit(p)} className="edit-btn">Edit</button>
-                <button onClick={() => handleDelete(p._id)} className="delete-btn">Delete</button>
+              <div className="image-upload-field">
+                <label className="upload-label">
+                  {uploading ? "Uploading..." : form.image_url ? "Change Photo" : "Choose Photo"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    style={{ display: "none" }}
+                    disabled={uploading}
+                  />
+                </label>
+                {form.image_url && (
+                  <img src={form.image_url} alt="preview" className="image-preview" />
+                )}
               </div>
+
+              <input name="stock" type="number" placeholder="Stock" value={form.stock} onChange={handleChange} />
+              <select
+                name="category"
+                value={form.category}
+                onChange={handleChange}
+                className="category-select"
+                required
+              >
+                <option value="">Select a category</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+
+              {error && <p className="admin-error">{error}</p>}
+
+              <div className="form-actions">
+                <button type="submit" className="save-btn">{editingId ? "Update" : "Add"} Product</button>
+                {editingId && <button type="button" onClick={cancelEdit} className="cancel-btn">Cancel</button>}
+              </div>
+            </form>
+          </section>
+
+          <section className="admin-list-section">
+            <h2>Products ({products.length})</h2>
+            <div className="product-grid">
+              {products.map((p) => (
+                <div key={p._id} className="product-card">
+                  <img src={p.image_url} alt={p.name} loading="lazy" onError={(e) => (e.target.style.display = "none")} />
+                  <h3>{p.name}</h3>
+                  <p className="price">₹{p.price}</p>
+                  <p className="stock">Stock: {p.stock}</p>
+                  <div className="card-actions">
+                    <button onClick={() => handleEdit(p)} className="edit-btn">Edit</button>
+                    <button onClick={() => handleDelete(p._id)} className="delete-btn">Delete</button>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
+        </>
+      )}
 
-      <section className="admin-list-section">
-        <h2>Orders ({orders.length})</h2>
-        {orders.length === 0 ? (
-          <p style={{ color: "#6b6b7b" }}>No orders yet.</p>
-        ) : (
-          <div className="orders-list">
-            {orders.map((o) => (
-              <div key={o._id} className="order-card">
-                <div className="order-top">
-                  <span className="order-email">{o.email}</span>
-                  <span className="order-phone">📞 {o.phone}</span>
+      {activeTab === "orders" && (
+        <section className="admin-list-section">
+          <h2>Orders ({orders.length})</h2>
+          {orders.length === 0 ? (
+            <p style={{ color: "#6b6b7b" }}>No orders yet.</p>
+          ) : (
+            <div className="orders-list">
+              {orders.map((o) => (
+                <div key={o._id} className="order-card">
+                  <div className="order-top">
+                    <span className="order-email">{o.email}</span>
+                    <span className="order-phone">📞 {o.phone}</span>
+                  </div>
+                  <ul className="order-items">
+                    {o.items.map((item, i) => (
+                      <li key={i}>{item.name} × {item.qty} — ₹{(item.price * item.qty).toFixed(2)}</li>
+                    ))}
+                  </ul>
+                  <div className="order-bottom">
+                    <span>Total: ₹{o.total.toFixed(2)}</span>
+                    <span className="order-date">{new Date(o.created_at).toLocaleString()}</span>
+                  </div>
+                  <button className="delete-order-btn" onClick={() => handleDeleteOrder(o._id)}>Delete</button>
                 </div>
-                <ul className="order-items">
-                  {o.items.map((item, i) => (
-                    <li key={i}>{item.name} × {item.qty} — ₹{(item.price * item.qty).toFixed(2)}</li>
-                  ))}
-                </ul>
-                <div className="order-bottom">
-                  <span>Total: ₹{o.total.toFixed(2)}</span>
-                  <span className="order-date">{new Date(o.created_at).toLocaleString()}</span>
-                </div>
-                <button className="delete-order-btn" onClick={() => handleDeleteOrder(o._id)}>Delete</button>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <Footer />
 
@@ -252,6 +273,35 @@ export default function Admin() {
         .admin-logo {
           height: 40px;
           width: auto;
+        }
+        .header-actions {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        .tab-btn {
+          padding: 8px 16px;
+          background: #f1f1f4;
+          color: #16161f;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .tab-btn.active {
+          background: #16161f;
+          color: #fff;
+        }
+        .tab-badge {
+          background: #E8794E;
+          color: #fff;
+          border-radius: 999px;
+          padding: 1px 7px;
+          font-size: 11px;
         }
         .logout-btn {
           padding: 8px 16px;
