@@ -14,7 +14,7 @@ export default function Products() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const { addToCart, updateQty, items, totalCount } = useCart();
-  const { logout } = useAuth();
+  const { logout, isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,11 +30,11 @@ export default function Products() {
 
   const slugify = (text) => text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
-const scrollToCategory = (category) => {
-  const el = document.getElementById(slugify(category));
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  setMenuOpen(false);
-};
+  const scrollToCategory = (category) => {
+    const el = document.getElementById(slugify(category));
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    setMenuOpen(false);
+  };
 
   const query = search.trim().toLowerCase();
 
@@ -59,32 +59,36 @@ const scrollToCategory = (category) => {
           <button className="cart-btn" onClick={() => navigate("/cart")}>
             🛒 Cart {totalCount > 0 && <span className="badge">{totalCount}</span>}
           </button>
-          <button className="logout-btn" onClick={logout}>Log out</button>
+          {isLoggedIn ? (
+            <button className="logout-btn" onClick={logout}>Log out</button>
+          ) : (
+            <button className="logout-btn" onClick={() => navigate("/login")}>Login</button>
+          )}
         </div>
       </header>
 
       <div className="search-row">
-  <button className="menu-btn" onClick={() => setMenuOpen((prev) => !prev)}>
-    {menuOpen ? <X size={20} /> : <Menu size={20} />}
-  </button>
-  <input
-    type="text"
-    className="search-bar"
-    placeholder="Search by product name or category..."
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-  />
-</div>
+        <button className="menu-btn" onClick={() => setMenuOpen((prev) => !prev)}>
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+        <input
+          type="text"
+          className="search-bar"
+          placeholder="Search by product name or category..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
-{menuOpen && (
-  <div className="category-menu">
-    {groupedCategories.map((cat) => (
-      <button key={cat} className="category-menu-item" onClick={() => scrollToCategory(cat)}>
-        {cat}
-      </button>
-    ))}
-  </div>
-)}
+      {menuOpen && (
+        <div className="category-menu">
+          {groupedCategories.map((cat) => (
+            <button key={cat} className="category-menu-item" onClick={() => scrollToCategory(cat)}>
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
 
       {error && <p className="shop-error">{error}</p>}
 
@@ -282,50 +286,50 @@ const scrollToCategory = (category) => {
         }
 
         .search-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-.menu-btn {
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border: 1.5px solid #e2e2e8;
-  border-radius: 10px;
-  background: #ffffff;
-  color: #16161f;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-.menu-btn:hover { border-color: #F2A65A; }
-.search-row .search-bar {
-  margin-bottom: 0;
-  flex: 1;
-}
-.category-menu {
-  display: flex;
-  flex-direction: column;
-  border: 1.5px solid #e2e2e8;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  max-height: 280px;
-  overflow-y: auto;
-}
-.category-menu-item {
-  text-align: left;
-  padding: 12px 16px;
-  background: none;
-  border: none;
-  border-bottom: 1px solid #f0f0f2;
-  font-size: 14px;
-  color: #16161f;
-  cursor: pointer;
-}
-.category-menu-item:last-child { border-bottom: none; }
-.category-menu-item:hover { background: #fff6ec; color: #E8794E; }
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 8px;
+        }
+        .menu-btn {
+          flex-shrink: 0;
+          width: 44px;
+          height: 44px;
+          border: 1.5px solid #e2e2e8;
+          border-radius: 10px;
+          background: #ffffff;
+          color: #16161f;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+        .menu-btn:hover { border-color: #F2A65A; }
+        .search-row .search-bar {
+          margin-bottom: 0;
+          flex: 1;
+        }
+        .category-menu {
+          display: flex;
+          flex-direction: column;
+          border: 1.5px solid #e2e2e8;
+          border-radius: 10px;
+          margin-bottom: 20px;
+          max-height: 280px;
+          overflow-y: auto;
+        }
+        .category-menu-item {
+          text-align: left;
+          padding: 12px 16px;
+          background: none;
+          border: none;
+          border-bottom: 1px solid #f0f0f2;
+          font-size: 14px;
+          color: #16161f;
+          cursor: pointer;
+        }
+        .category-menu-item:last-child { border-bottom: none; }
+        .category-menu-item:hover { background: #fff6ec; color: #E8794E; }
       `}</style>
     </div>
   );

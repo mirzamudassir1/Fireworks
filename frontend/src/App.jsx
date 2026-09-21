@@ -8,9 +8,9 @@ import Admin from "./pages/Admin";
 import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
 
-function PrivateRoute({ children }) {
-  const { isLoggedIn } = useAuth();
-  return isLoggedIn ? children : <Navigate to="/login" />;
+function AdminRoute({ children }) {
+  const { isLoggedIn, isAdmin } = useAuth();
+  return isLoggedIn && isAdmin ? children : <Navigate to="/login" />;
 }
 
 function AppRoutes() {
@@ -18,39 +18,18 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      <Route
-        path="/products"
-        element={
-          <PrivateRoute>
-            <Products />
-          </PrivateRoute>
-        }
-      />
-      <Route
-  path="/products/:id"
-  element={
-    <PrivateRoute>
-      <ProductDetail />
-    </PrivateRoute>
-  }
-/>
-      <Route
-        path="/cart"
-        element={
-          <PrivateRoute>
-            <Cart />
-          </PrivateRoute>
-        }
-      />
+      <Route path="/products" element={<Products />} />
+      <Route path="/products/:id" element={<ProductDetail />} />
+      <Route path="/cart" element={<Cart />} />
       <Route
         path="/admin"
         element={
-          <PrivateRoute>
+          <AdminRoute>
             <Admin />
-          </PrivateRoute>
+          </AdminRoute>
         }
       />
-      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="/" element={<Navigate to="/products" />} />
     </Routes>
   );
 }
