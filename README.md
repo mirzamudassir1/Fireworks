@@ -4,6 +4,7 @@ A full-stack ecommerce web app built for a friend's fireworks business, doubling
 
 **Live site:** https://crackercity.vercel.app/       
                https://ecommers-gamma-two.vercel.app  (Login/signup)
+               
 **Live API:**  https://fireworks-oxud.onrender.com/docs
 
 ---
