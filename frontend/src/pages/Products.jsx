@@ -216,10 +216,12 @@ export default function Products() {
           gap: 14px;
         }
         .product-card {
-          border: 1.5px solid #e2e2e8;
-          border-radius: 12px;
-          padding: 12px;
-        }
+  border: 1.5px solid #e2e2e8;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
         .product-card img {
           width: 100%;
           height: 110px;
@@ -228,10 +230,15 @@ export default function Products() {
           margin-bottom: 8px;
         }
         .product-card h3 {
-          font-size: 14px;
-          color: #16161f;
-          margin: 0 0 4px;
-        }
+  font-size: 14px;
+  color: #16161f;
+  margin: 0 0 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.6em;
+}
         .product-card .desc {
           font-size: 12px;
           color: #6b6b7b;
@@ -248,24 +255,26 @@ export default function Products() {
           font-size: 15px;
         }
         .add-btn {
-          width: 100%;
-          padding: 8px;
-          background: #16161f;
-          color: #fff;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-          font-size: 13px;
-        }
+  width: 100%;
+  padding: 8px;
+  background: #16161f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  margin-top: auto;
+}
         .add-btn:hover { background: #E8794E; }
         .qty-stepper {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          background: #16161f;
-          border-radius: 8px;
-          padding: 6px 4px;
-        }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #16161f;
+  border-radius: 8px;
+  padding: 6px 4px;
+  margin-top: auto;
+}
         .qty-stepper button {
           background: none;
           border: none;
