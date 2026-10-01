@@ -1,6 +1,6 @@
 # 🎆 The Cracker City — Fireworks Ecommerce Store
 
-A full-stack ecommerce web app built for a friend's fireworks business, doubling as a personal portfolio project. Customers can browse products and check out; the admin has full control over the product catalog and order list.
+A full-stack ecommerce web app built for a fireworks business, doubling as a personal portfolio project. Customers can browse products and check out; the admin has full control over the product catalog and order list.
 
 **Live site:** https://crackercity.vercel.app/       
 **(Login/signup)** https://ecommers-gamma-two.vercel.app 
